@@ -22,9 +22,9 @@ from urllib.parse import urlparse, urlencode
 from urllib.request import urlopen, Request
 from urllib.error import HTTPError
 
-import requests
 import json
 import os
+import requests
 
 from flask import Flask
 from flask import request
@@ -52,32 +52,7 @@ def webhook():
 
 def processRequest(req):
     if req.get("result").get("action") != "yahooWeatherForecast":
-        return {    
-        url = "https://platform.uipath.com/api/account/authenticate"
-        payload = " {\r\n                            \"tenancyName\" : \"NaneesRefaie\",\r\n                            \"usernameOrEmailAddress\" : \"Asmaa\",\r\n                            \"password\" : \"Advansys@2018\"\r\n                            }"
-        headers = {
-                    'Content-Type': "application/json",
-                     'Cache-Control': "no-cache"
-    }
-
-        response = requests.request("POST", url, data=payload, headers=headers) 
-
-        keyAuthenicate=json.loads(response.text)
-        #print("the key is "+keyAuthenicate["result"]);
-
-
-        url = "https://platform.uipath.com/odata/Jobs/UiPath.Server.Configuration.OData.StartJobs"
-
-        payload = "{\r\n  \"startInfo\": {\r\n    \"ReleaseKey\": \"923c44bb-81cf-4ddf-895f-538896845d79\",\r\n    \"RobotIds\": [\r\n      12440\r\n    ],\r\n    \"NoOfRobots\": 0,\r\n    \"Strategy\": \"Specific\"\r\n  }\r\n}\r\n "
-        headers = {
-                    'Content-Type': "application/json",
-                    'Authorization': "Bearer "+keyAuthenicate["result"] ,
-                    'Cache-Control': "no-cache"
-                    }
-
-                response = requests.request("POST", url, data=payload, headers=headers)
-                print(response.text)
-        }
+        return {}
     baseurl = "https://query.yahooapis.com/v1/public/yql?"
     yql_query = makeYqlQuery(req)
     if yql_query is None:
@@ -86,7 +61,33 @@ def processRequest(req):
     result = urlopen(yql_url).read()
     data = json.loads(result)
     res = makeWebhookResult(data)
-    return res
+	if req.get("result").get("action") == "accountDetails‏":
+		
+		return{
+		
+				url = "https://platform.uipath.com/api/account/authenticate"
+
+				payload = " {\r\n                            \"tenancyName\" : \"NaneesRefaie\",\r\n                            \"usernameOrEmailAddress\" : \"Asmaa\",\r\n                            \"password\" : \"Advansys@2018\"\r\n                            }"
+				headers = {
+				'Content-Type': "application/json",
+				'Cache-Control': "no-cache"
+				}
+
+				response = requests.request("POST", url, data=payload, headers=headers)
+				keyAuthenicate=json.loads(response.text)
+				url = "https://platform.uipath.com/odata/Jobs/UiPath.Server.Configuration.OData.StartJobs"
+
+				payload = "{\r\n  \"startInfo\": {\r\n    \"ReleaseKey\": \"923c44bb-81cf-4ddf-895f-538896845d79\",\r\n    \"RobotIds\": [\r\n      12440\r\n    ],\r\n    \"NoOfRobots\": 0,\r\n    \"Strategy\": \"Specific\"\r\n  }\r\n}\r\n "
+				headers = {
+				'Content-Type': "application/json",
+				'Authorization': "Bearer "+keyAuthenicate["result"] ,
+				'Cache-Control': "no-cache"
+					}
+				response = requests.request("POST", url, data=payload, headers=headers)
+
+		}
+	
+	return res
 
 
 def makeYqlQuery(req):
